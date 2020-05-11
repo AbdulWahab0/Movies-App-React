@@ -5,29 +5,37 @@ import * as userService from "../services/userService";
 
 class RegisterForm extends Form {
   state = {
-    data: { email: "", username: "", password: "" },
+    data: { username: "", password: "", name: "" },
     errors: {},
   };
+
   schema = {
-    email: Joi.string().required().email().label("Email"),
-    username: Joi.string().required().label("Username"),
+    username: Joi.string().required().email().label("Username"),
     password: Joi.string().required().min(5).label("Password"),
+    name: Joi.string().required().label("Name"),
   };
+
   doSubmit = async () => {
-    //await userService.register(this.state.data);
-    const response = await userService.register(this.state.data);
-    console.log("FOrm data", response);
+    try {
+      await userService.register(this.state.data);
+    } catch (error) {
+      if (error.response && error.response.status === 400) {
+        const errors = { ...this.state.errors };
+        errors.username = error.response.data;
+        this.setState({ errors });
+      }
+    }
   };
 
   render() {
     return (
       <div>
-        <h1>Register Form </h1>
+        <h1>Register</h1>
         <form onSubmit={this.handleSubmit}>
-          {this.renderInput("email", "Email")}
           {this.renderInput("username", "Username")}
           {this.renderInput("password", "Password", "password")}
-          {this.renderButton("Save")}
+          {this.renderInput("name", "Name")}
+          {this.renderButton("Register")}
         </form>
       </div>
     );
